@@ -21,4 +21,10 @@ var routes = Routes{
 		"/repositories",
 		rpm.CreateRepo,
 	},
+	Route{
+		"listRepos",
+		"GET",
+		"/repositories",
+		rpm.ListRepos,
+	},
 }
