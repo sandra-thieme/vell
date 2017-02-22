@@ -1,6 +1,7 @@
-package routing
+package api
 
 import (
+	"github.com/rkcpi/vell/rpm"
 	"net/http"
 )
 
@@ -13,4 +14,11 @@ type Route struct {
 
 type Routes []Route
 
-var routes = Routes{}
+var routes = Routes{
+	Route{
+		"createRepo",
+		"POST",
+		"/repositories",
+		rpm.CreateRepo,
+	},
+}
