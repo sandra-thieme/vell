@@ -1,11 +1,14 @@
 package rpm
 
 import (
-	"fmt"
 	"github.com/rkcpi/vell/config"
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
+	//"io"
+	"mime/multipart"
+	"io"
 )
 
 type YumRepository struct {
@@ -22,7 +25,7 @@ func (r *YumRepository) ensureExists() string {
 }
 
 func (r *YumRepository) path() string {
-	return fmt.Sprintf("%s%s", config.ReposPath, r.Name)
+	return filepath.Join(config.ReposPath, r.Name)
 }
 
 func (r *YumRepository) initialize() error {
@@ -30,5 +33,26 @@ func (r *YumRepository) initialize() error {
 	path := r.ensureExists()
 	log.Printf("Executing `createrepo --database %s`", path)
 	cmd := exec.Command("createrepo", "--database", path)
+	return cmd.Run()
+}
+
+func (r *YumRepository) add(filename string, f multipart.File) {
+	log.Printf("Adding %s to repository %s", filename, r.path())
+	destinationPath := filepath.Join(r.path(), filename)
+	destination, err := os.Create(destinationPath)
+	if err != nil {
+		panic(err)
+	}
+	defer destination.Close()
+	_, err = io.Copy(destination, f)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (r *YumRepository) update() error {
+	path := r.path()
+	log.Printf("Executing `createrepo --update %s`", path)
+	cmd := exec.Command("createrepo", "--update", path)
 	return cmd.Run()
 }

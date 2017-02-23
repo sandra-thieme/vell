@@ -27,4 +27,10 @@ var routes = Routes{
 		"/repositories",
 		rpm.ListRepos,
 	},
+	Route{
+		"addRPM",
+		"POST",
+		"/repositories/{name}",
+		rpm.AddRPM,
+	},
 }
