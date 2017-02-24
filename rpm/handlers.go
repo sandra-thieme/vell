@@ -48,7 +48,7 @@ func ListRepos(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-// POST /repositories/{name}
+// POST /repositories/{name}/packages
 func AddRPM(w http.ResponseWriter, r *http.Request) {
 	repo := YumRepository{mux.Vars(r)["name"]}
 	err := r.ParseMultipartForm(10 * 1024 * 1024)

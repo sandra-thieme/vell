@@ -30,7 +30,7 @@ var routes = Routes{
 	Route{
 		"addRPM",
 		"POST",
-		"/repositories/{name}",
+		"/repositories/{name}/packages",
 		rpm.AddRPM,
 	},
 }
