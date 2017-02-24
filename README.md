@@ -7,7 +7,11 @@ Every operation is done via Vell's REST API.
 
 ## Installation
 
-Make sure that the `createrepo` package is installed:
+Vell is still under development and no stable version has been released
+as of yet. Once Vell hits 1.0 packages will be provided for download.
+
+The only external dependency that Vell has is `createrepo`. Make sure
+that the `createrepo` package is installed:
 
 ```bash
 $ yum install createrepo
