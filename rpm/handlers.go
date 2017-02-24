@@ -67,6 +67,7 @@ func AddRPM(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	repo.update()
+	w.WriteHeader(http.StatusCreated)
 }
 
 func fail(w http.ResponseWriter, err error) {
