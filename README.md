@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/rkcpi/vell.svg?branch=master)](https://travis-ci.org/rkcpi/vell)
 
 Vell is a lightweigt repository management tool for RPM repositories.
-Every operation is done via Vell's REST API.
+Every operation is done via Vell's HTTP API.
 
 ## Installation
 
@@ -30,4 +30,53 @@ or `127.0.0.1`, if not given Vell will listen on all interfaces
 
 ## Usage
 
-TODO.
+Vell is managed entirely through its HTTP API. The following endpoints
+are available:
+
+### GET /repositories
+
+Fetches a list of all repositories in `VELL_REPOS_PATH`.
+
+Example request:
+
+```bash
+$ curl http://localhost:8080/repositories
+```
+
+Response with status code 200 OK:
+
+```json
+[
+  {
+    "name":"foo"
+  },
+  {
+    "name":"bar"
+  }
+]
+```
+
+### POST /repositories
+
+Creates a new repository.
+
+Example request:
+
+```bash
+$ curl -H "Content-Type: application/json" -d '{"name":"baz"}' http://localhost:8080/repositories
+```
+
+Response will have status code 201 CREATED.
+
+### POST /repositories/{name}/packages
+
+Adds a new package to the repository with name `name`.
+
+Suppose you have a package called `myapp-1.5.3.x86_64.rpm`. Example to
+add this to your `foo` repository:
+
+```bash
+$ curl -X POST -F file=@path/to/myapp-1.5.3.x86_64.rpm http://localhost:8080/repositories/foo/packages
+```
+
+Response will have status code 201 CREATED.
