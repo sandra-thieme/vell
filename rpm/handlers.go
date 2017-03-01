@@ -37,9 +37,9 @@ func ListRepos(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("Error: %s", err)
 	}
-	repos := make([]YumRepository, len(files), len(files))
-	for i, file := range files {
-		repos[i] = YumRepository{file.Name()}
+	repos := make([]YumRepository, 0, 0)
+	for _, file := range files {
+		repos = append(repos, YumRepository{file.Name})
 	}
 	if err := json.NewEncoder(w).Encode(repos); err != nil {
 		fail(w, err)
