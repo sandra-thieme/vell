@@ -56,3 +56,12 @@ func (r *YumRepository) update() error {
 	cmd := exec.Command("createrepo", "--update", path)
 	return cmd.Run()
 }
+
+func (r *YumRepository) repomdPath() string {
+	return filepath.Join(r.path(), "repodata", "repomd.xml")
+}
+
+func (r *YumRepository) isValid() bool {
+	_, err := os.Stat(r.repomdPath())
+	return err != nil
+}
