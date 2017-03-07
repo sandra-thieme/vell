@@ -6,9 +6,10 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	//"io"
 	"mime/multipart"
 	"io"
+	"io/ioutil"
+	"time"
 )
 
 type YumRepository struct {
@@ -64,4 +65,22 @@ func (r *YumRepository) repomdPath() string {
 func (r *YumRepository) isValid() bool {
 	_, err := os.Stat(r.repomdPath())
 	return err != nil
+}
+
+func (r *YumRepository) listPackages() []Package {
+	packages := make([]Package, 0, 0)
+	files, _ := ioutil.ReadDir(r.path())
+	for _, file := range files {
+		if !file.IsDir() {
+			p := Package{file.Name(), file.ModTime().Format(time.RFC3339), file.Size()}
+			packages = append(packages, p)
+		}
+	}
+	return packages
+}
+
+type Package struct {
+	Name string `json:"name"`
+	Timestamp string `json:"lastUpdated"`
+	Size int64 `json:"size"`
 }

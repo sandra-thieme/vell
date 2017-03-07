@@ -80,3 +80,26 @@ $ curl -X POST -F file=@path/to/myapp-1.5.3.x86_64.rpm http://localhost:8080/rep
 ```
 
 Response will have status code 201 CREATED.
+
+### GET /repositories/{name}/packages
+
+Lists all packages in the repository with name `name`.
+
+Example request:
+
+```bash
+$ curl http://localhost:8080/repositories/baz/packages
+```
+
+Response with status code 200 OK:
+
+```json
+[
+  {
+    "name":"myapp-1.5.3.x86_64.rpm",
+    "lastUpdated":"2017-03-07T13:02:58+01:00",
+    "size":415661
+  },
+  ...
+]
+```

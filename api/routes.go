@@ -33,4 +33,10 @@ var routes = Routes{
 		"/repositories/{name}/packages",
 		rpm.AddRPM,
 	},
+	Route{
+		"listRPMs",
+		"GET",
+		"/repositories/{name}/packages",
+		rpm.ListPackages,
+	},
 }
