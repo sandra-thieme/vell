@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/rkcpi/vell.svg?branch=master)](https://travis-ci.org/rkcpi/vell)
 
-Vell is a lightweigt repository management tool for RPM repositories.
+Vell is a lightweight repository management tool for RPM repositories.
 Every operation is done via Vell's HTTP API.
 
 ## Installation
