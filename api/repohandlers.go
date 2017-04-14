@@ -24,7 +24,6 @@ func CreateRepo(w http.ResponseWriter, r *http.Request) *apiError {
 		return &apiError{err, "Repo initialization failed", http.StatusInternalServerError}
 	}
 
-	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
 	w.Header().Set("Location", locationHeader(r, repo.Name))
 	w.WriteHeader(http.StatusCreated)
 	return nil
@@ -34,7 +33,6 @@ func CreateRepo(w http.ResponseWriter, r *http.Request) *apiError {
 func ListRepos(w http.ResponseWriter, r *http.Request) *apiError {
 	reps := config.RepoStore.ListRepositories()
 
-	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
 	if err := json.NewEncoder(w).Encode(reps); err != nil {

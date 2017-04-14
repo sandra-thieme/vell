@@ -20,22 +20,43 @@ func NewRepository(store *yumRepoStore, name string) repos.AnyRepository {
 	return &yumRepository{store, name}
 }
 
+func (r *yumRepository) ensureExists() (string, error) {
+	path := r.path()
+	_, err := os.Stat(path)
+	if os.IsNotExist(err) {
+		log.Printf("Creating repository directory %s", path)
+		err = os.MkdirAll(path, 0755)
+	}
+	return path, err
+}
+
 func (r *yumRepository) path() string {
 	return filepath.Join(r.store.base, r.name)
 }
 
-func (r *yumRepository) Add(filename string, f io.Reader) {
+func (r *yumRepository) Initialize() error {
+	log.Printf("Initializing repository %s", r.name)
+	path, err := r.ensureExists()
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Executing `createrepo --database %s`", path)
+	cmd := exec.Command("createrepo", "--database", path)
+	return cmd.Run()
+}
+
+func (r *yumRepository) Add(filename string, f io.Reader) error {
 	log.Printf("Adding %s to repository %s", filename, r.path())
 	destinationPath := filepath.Join(r.path(), filename)
 	destination, err := os.Create(destinationPath)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer destination.Close()
 	_, err = io.Copy(destination, f)
-	if err != nil {
-		panic(err)
-	}
+
+	return err
 }
 
 func (r *yumRepository) Update() error {
@@ -54,8 +75,12 @@ func (r *yumRepository) IsValid() bool {
 	return err != nil
 }
 
-func (r *yumRepository) ListPackages() []repos.Package {
-	files, _ := ioutil.ReadDir(r.path())
+func (r *yumRepository) ListPackages() ([]repos.Package, error) {
+	files, err := ioutil.ReadDir(r.path())
+	if err != nil {
+		return nil, err
+	}
+
 	packages := make([]repos.Package, 0, len(files))
 	for _, file := range files {
 		if !file.IsDir() {
@@ -67,5 +92,5 @@ func (r *yumRepository) ListPackages() []repos.Package {
 			packages = append(packages, p)
 		}
 	}
-	return packages
+	return packages, nil
 }

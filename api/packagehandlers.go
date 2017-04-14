@@ -4,19 +4,18 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"github.com/rkcpi/vell/config"
-	"github.com/rkcpi/vell/repos"
 	"net/http"
 )
 
 // GET /repositories/{name}/packages
 func ListPackages(w http.ResponseWriter, r *http.Request) *apiError {
 	repo := config.RepoStore.Get(mux.Vars(r)["name"])
-	var packages []repos.Package
-	if repo.IsValid() {
-		packages = repo.ListPackages()
+
+	packages, err := repo.ListPackages()
+	if err != nil {
+		return &apiError{err, "Package listing error", http.StatusInternalServerError}
 	}
 
-	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
 	if err := json.NewEncoder(w).Encode(packages); err != nil {
