@@ -34,7 +34,7 @@ func (r *YumRepository) path() string {
 	return filepath.Join(config.ReposPath, r.Name)
 }
 
-func (r *YumRepository) initialize() error {
+func (r *YumRepository) Initialize() error {
 	log.Printf("Initializing repository %s", r.Name)
 	path := r.ensureExists()
 	log.Printf("Executing `createrepo --database %s`", path)
@@ -42,7 +42,7 @@ func (r *YumRepository) initialize() error {
 	return cmd.Run()
 }
 
-func (r *YumRepository) add(filename string, f io.Reader) {
+func (r *YumRepository) Add(filename string, f io.Reader) {
 	log.Printf("Adding %s to repository %s", filename, r.path())
 	destinationPath := filepath.Join(r.path(), filename)
 	destination, err := os.Create(destinationPath)
@@ -56,7 +56,7 @@ func (r *YumRepository) add(filename string, f io.Reader) {
 	}
 }
 
-func (r *YumRepository) update() error {
+func (r *YumRepository) Update() error {
 	path := r.path()
 	log.Printf("Executing `createrepo --update %s`", path)
 	cmd := exec.Command("createrepo", "--update", path)
@@ -67,12 +67,12 @@ func (r *YumRepository) repomdPath() string {
 	return filepath.Join(r.path(), "repodata", "repomd.xml")
 }
 
-func (r *YumRepository) isValid() bool {
+func (r *YumRepository) IsValid() bool {
 	_, err := os.Stat(r.repomdPath())
 	return err != nil
 }
 
-func (r *YumRepository) listPackages() []Package {
+func (r *YumRepository) ListPackages() []Package {
 	files, _ := ioutil.ReadDir(r.path())
 	packages := make([]Package, 0, len(files))
 	for _, file := range files {

@@ -1,7 +1,6 @@
 package api
 
 import (
-	"github.com/rkcpi/vell/rpm"
 	"net/http"
 )
 
@@ -17,24 +16,24 @@ var routes = []Route{
 		"createRepo",
 		"POST",
 		"/repositories",
-		rpm.CreateRepo,
+		CreateRepo,
 	},
 	Route{
 		"listRepos",
 		"GET",
 		"/repositories",
-		rpm.ListRepos,
+		ListRepos,
 	},
 	Route{
 		"addRPM",
 		"POST",
 		"/repositories/{name}/packages",
-		rpm.AddRPM,
+		AddRPM,
 	},
 	Route{
 		"listRPMs",
 		"GET",
 		"/repositories/{name}/packages",
-		rpm.ListPackages,
+		ListPackages,
 	},
 }

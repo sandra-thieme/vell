@@ -1,9 +1,10 @@
-package rpm
+package api
 
 import (
 	"encoding/json"
 	"fmt"
 	"github.com/rkcpi/vell/config"
+	"github.com/rkcpi/vell/rpm"
 	"io"
 	"io/ioutil"
 	"log"
@@ -12,7 +13,7 @@ import (
 
 // POST /repositories
 func CreateRepo(w http.ResponseWriter, r *http.Request) {
-	var repo YumRepository
+	var repo rpm.YumRepository
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {
 		panic(err)
@@ -20,7 +21,7 @@ func CreateRepo(w http.ResponseWriter, r *http.Request) {
 	if err := json.Unmarshal(body, &repo); err != nil {
 		fail(w, err)
 	}
-	if err := repo.initialize(); err != nil {
+	if err := repo.Initialize(); err != nil {
 		fail(w, err)
 	}
 
@@ -36,10 +37,10 @@ func ListRepos(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("Error: %s", err)
 	}
-	repos := make([]YumRepository, 0, 0)
+	repos := make([]rpm.YumRepository, 0, len(files))
 	for _, file := range files {
-		repo := YumRepository{file.Name()}
-		if repo.isValid() {
+		repo := rpm.YumRepository{file.Name()}
+		if repo.IsValid() {
 			repos = append(repos, repo)
 		}
 	}
