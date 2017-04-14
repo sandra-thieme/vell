@@ -1,7 +1,6 @@
 package rpm
 
 import (
-	"github.com/rkcpi/vell/config"
 	"github.com/rkcpi/vell/repos"
 	"io"
 	"io/ioutil"
@@ -13,15 +12,16 @@ import (
 )
 
 type yumRepository struct {
-	Name string
+	store *yumRepoStore
+	name  string
 }
 
-func NewRepository(name string) repos.AnyRepository {
-	return &yumRepository{name}
+func NewRepository(store *yumRepoStore, name string) repos.AnyRepository {
+	return &yumRepository{store, name}
 }
 
 func (r *yumRepository) path() string {
-	return filepath.Join(config.ReposPath, r.Name)
+	return filepath.Join(r.store.base, r.name)
 }
 
 func (r *yumRepository) Add(filename string, f io.Reader) {

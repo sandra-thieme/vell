@@ -1,7 +1,6 @@
 package rpm
 
 import (
-	"github.com/rkcpi/vell/config"
 	"github.com/rkcpi/vell/repos"
 	"io/ioutil"
 	"log"
@@ -14,8 +13,12 @@ type yumRepoStore struct {
 	base string
 }
 
-func NewRepositoryStore() repos.RepositoryStore {
-	return &yumRepoStore{config.ReposPath}
+func NewRepositoryStore(base string) repos.RepositoryStore {
+	return &yumRepoStore{base}
+}
+
+func (store *yumRepoStore) Get(name string) repos.AnyRepository {
+	return NewRepository(store, name)
 }
 
 func (store *yumRepoStore) Initialize(name string) error {

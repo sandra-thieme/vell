@@ -14,7 +14,9 @@ type Package struct {
 
 type RepositoryStore interface {
 	ListRepositories() []Repository
+
 	Initialize(name string) error
+	Get(name string) AnyRepository
 }
 
 type AnyRepository interface {

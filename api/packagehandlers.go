@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"github.com/rkcpi/vell/repos"
-	"github.com/rkcpi/vell/rpm"
+	"github.com/rkcpi/vell/config"
 	"net/http"
 )
 
 // GET /repositories/{name}/packages
 func ListPackages(w http.ResponseWriter, r *http.Request) {
-	repo := rpm.NewRepository(mux.Vars(r)["name"])
+	repo := config.RepoStore.Get(mux.Vars(r)["name"])
 	var packages []repos.Package
 	if repo.IsValid() {
 		packages = repo.ListPackages()
@@ -24,7 +24,7 @@ func ListPackages(w http.ResponseWriter, r *http.Request) {
 
 // POST /repositories/{name}/packages
 func AddRPM(w http.ResponseWriter, r *http.Request) {
-	repo := rpm.NewRepository(mux.Vars(r)["name"])
+	repo := config.RepoStore.Get(mux.Vars(r)["name"])
 	err := r.ParseMultipartForm(10 * 1024 * 1024)
 	if err != nil {
 		fail(w, err)

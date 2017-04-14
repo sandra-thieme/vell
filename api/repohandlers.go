@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/rkcpi/vell/repos"
-	"github.com/rkcpi/vell/rpm"
+	"github.com/rkcpi/vell/config"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -20,7 +20,7 @@ func CreateRepo(w http.ResponseWriter, r *http.Request) {
 	if err := json.Unmarshal(body, &repo); err != nil {
 		fail(w, err)
 	}
-	if err := rpm.NewRepositoryStore().Initialize(repo.Name); err != nil {
+	if err := config.RepoStore.Initialize(repo.Name); err != nil {
 		fail(w, err)
 	}
 
@@ -32,7 +32,7 @@ func CreateRepo(w http.ResponseWriter, r *http.Request) {
 
 // GET /repositories
 func ListRepos(w http.ResponseWriter, r *http.Request) {
-	reps := rpm.NewRepositoryStore().ListRepositories()
+	reps := config.RepoStore.ListRepositories()
 
 	if err := json.NewEncoder(w).Encode(reps); err != nil {
 		fail(w, err)
