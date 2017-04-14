@@ -2,18 +2,24 @@ package rpm
 
 import (
 	"github.com/rkcpi/vell/config"
+	"io"
+	"io/ioutil"
 	"log"
+	"mime/multipart"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"mime/multipart"
-	"io"
-	"io/ioutil"
 	"time"
 )
 
 type YumRepository struct {
 	Name string `json:"name"`
+}
+
+type Package struct {
+	Name      string `json:"name"`
+	Timestamp string `json:"lastUpdated"`
+	Size      int64  `json:"size"`
 }
 
 func (r *YumRepository) ensureExists() string {
@@ -77,10 +83,4 @@ func (r *YumRepository) listPackages() []Package {
 		}
 	}
 	return packages
-}
-
-type Package struct {
-	Name string `json:"name"`
-	Timestamp string `json:"lastUpdated"`
-	Size int64 `json:"size"`
 }
