@@ -8,12 +8,12 @@ import (
 	"testing"
 )
 
-var repo YumRepository
+var repo yumRepository
 var path string
 
 func setup() {
 	name := "vell-repository"
-	repo = YumRepository{name}
+	repo = yumRepository{name}
 	config.ReposPath, _ = ioutil.TempDir("", "vell")
 	path = filepath.Join(config.ReposPath, name)
 }

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/rkcpi/vell/config"
+	"github.com/rkcpi/vell/repos"
 	"github.com/rkcpi/vell/rpm"
 	"io"
 	"io/ioutil"
@@ -13,7 +14,7 @@ import (
 
 // POST /repositories
 func CreateRepo(w http.ResponseWriter, r *http.Request) {
-	var repo rpm.YumRepository
+	var repo repos.Repository
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {
 		panic(err)
@@ -21,7 +22,7 @@ func CreateRepo(w http.ResponseWriter, r *http.Request) {
 	if err := json.Unmarshal(body, &repo); err != nil {
 		fail(w, err)
 	}
-	if err := repo.Initialize(); err != nil {
+	if err := rpm.NewRepository(repo.Name).Initialize(); err != nil {
 		fail(w, err)
 	}
 
@@ -37,14 +38,12 @@ func ListRepos(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("Error: %s", err)
 	}
-	repos := make([]rpm.YumRepository, 0, len(files))
+	reps := make([]repos.Repository, 0, len(files))
 	for _, file := range files {
-		repo := rpm.YumRepository{file.Name()}
-		if repo.IsValid() {
-			repos = append(repos, repo)
-		}
+		repo := repos.Repository{file.Name()}
+		reps = append(reps, repo)
 	}
-	if err := json.NewEncoder(w).Encode(repos); err != nil {
+	if err := json.NewEncoder(w).Encode(reps); err != nil {
 		fail(w, err)
 	}
 	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
