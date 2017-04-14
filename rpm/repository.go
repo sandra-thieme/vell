@@ -74,8 +74,8 @@ func (r *YumRepository) isValid() bool {
 }
 
 func (r *YumRepository) listPackages() []Package {
-	packages := make([]Package, 0, 0)
 	files, _ := ioutil.ReadDir(r.path())
+	packages := make([]Package, 0, len(files))
 	for _, file := range files {
 		if !file.IsDir() {
 			p := Package{file.Name(), file.ModTime().Format(time.RFC3339), file.Size()}
