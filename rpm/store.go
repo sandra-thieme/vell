@@ -36,7 +36,7 @@ func (store *yumRepoStore) ListRepositories() []repos.Repository {
 	}
 	reps := make([]repos.Repository, 0, len(files))
 	for _, file := range files {
-		repo := repos.Repository{file.Name()}
+		repo := repos.Repository{Name: file.Name()}
 		reps = append(reps, repo)
 	}
 

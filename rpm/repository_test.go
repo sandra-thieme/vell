@@ -1,21 +1,22 @@
 package rpm
 
 import (
-	"github.com/rkcpi/vell/config"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
 )
 
-var repo yumRepository
+var repo *yumRepository
 var path string
 
 func setup() {
 	name := "vell-repository"
-	repo = yumRepository{name}
-	config.ReposPath, _ = ioutil.TempDir("", "vell")
-	path = filepath.Join(config.ReposPath, name)
+	reposPath, _ := ioutil.TempDir("", "vell")
+	store := &yumRepoStore{reposPath}
+	repo = &yumRepository{store, name}
+
+	path = filepath.Join(reposPath, name)
 }
 
 func TestPath(t *testing.T) {
@@ -26,7 +27,7 @@ func TestPath(t *testing.T) {
 }
 
 func TestEnsureExists(t *testing.T) {
-	repo.ensureExists()
+	repo.store.ensureExists(repo.name)
 	file, err := os.Open(path)
 	if err != nil {
 		t.Errorf("%s", err)
@@ -51,5 +52,5 @@ func TestMain(m *testing.M) {
 }
 
 func shutdown() {
-	defer os.RemoveAll(config.ReposPath)
+	defer os.RemoveAll(repo.store.base)
 }

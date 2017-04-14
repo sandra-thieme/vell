@@ -59,7 +59,11 @@ func (r *yumRepository) ListPackages() []repos.Package {
 	packages := make([]repos.Package, 0, len(files))
 	for _, file := range files {
 		if !file.IsDir() {
-			p := repos.Package{file.Name(), file.ModTime().Format(time.RFC3339), file.Size()}
+			p := repos.Package{
+				Name:      file.Name(),
+				Timestamp: file.ModTime().Format(time.RFC3339),
+				Size:      file.Size(),
+			}
 			packages = append(packages, p)
 		}
 	}
