@@ -12,6 +12,10 @@ type Package struct {
 	Size      int64  `json:"size"`
 }
 
+type RepositoryStore interface {
+	ListRepositories() []Repository
+}
+
 type AnyRepository interface {
 	Initialize() error
 	Add(filename string, f io.Reader)

@@ -3,12 +3,10 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/rkcpi/vell/config"
 	"github.com/rkcpi/vell/repos"
 	"github.com/rkcpi/vell/rpm"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 )
 
@@ -34,15 +32,8 @@ func CreateRepo(w http.ResponseWriter, r *http.Request) {
 
 // GET /repositories
 func ListRepos(w http.ResponseWriter, r *http.Request) {
-	files, err := ioutil.ReadDir(config.ReposPath)
-	if err != nil {
-		log.Printf("Error: %s", err)
-	}
-	reps := make([]repos.Repository, 0, len(files))
-	for _, file := range files {
-		repo := repos.Repository{file.Name()}
-		reps = append(reps, repo)
-	}
+	reps := rpm.NewRepositoryStore().ListRepositories()
+
 	if err := json.NewEncoder(w).Encode(reps); err != nil {
 		fail(w, err)
 	}
