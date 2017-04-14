@@ -14,10 +14,10 @@ type Package struct {
 
 type RepositoryStore interface {
 	ListRepositories() []Repository
+	Initialize(name string) error
 }
 
 type AnyRepository interface {
-	Initialize() error
 	Add(filename string, f io.Reader)
 	Update() error
 	ListPackages() []Package

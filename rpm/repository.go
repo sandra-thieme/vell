@@ -20,25 +20,8 @@ func NewRepository(name string) repos.AnyRepository {
 	return &yumRepository{name}
 }
 
-func (r *yumRepository) ensureExists() string {
-	path := r.path()
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		log.Printf("Creating repository directory %s", path)
-		os.MkdirAll(path, 0755)
-	}
-	return path
-}
-
 func (r *yumRepository) path() string {
 	return filepath.Join(config.ReposPath, r.Name)
-}
-
-func (r *yumRepository) Initialize() error {
-	log.Printf("Initializing repository %s", r.Name)
-	path := r.ensureExists()
-	log.Printf("Executing `createrepo --database %s`", path)
-	cmd := exec.Command("createrepo", "--database", path)
-	return cmd.Run()
 }
 
 func (r *yumRepository) Add(filename string, f io.Reader) {

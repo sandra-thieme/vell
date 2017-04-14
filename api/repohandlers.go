@@ -20,7 +20,7 @@ func CreateRepo(w http.ResponseWriter, r *http.Request) {
 	if err := json.Unmarshal(body, &repo); err != nil {
 		fail(w, err)
 	}
-	if err := rpm.NewRepository(repo.Name).Initialize(); err != nil {
+	if err := rpm.NewRepositoryStore().Initialize(repo.Name); err != nil {
 		fail(w, err)
 	}
 
