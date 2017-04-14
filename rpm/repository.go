@@ -5,7 +5,6 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
-	"mime/multipart"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -43,7 +42,7 @@ func (r *YumRepository) initialize() error {
 	return cmd.Run()
 }
 
-func (r *YumRepository) add(filename string, f multipart.File) {
+func (r *YumRepository) add(filename string, f io.Reader) {
 	log.Printf("Adding %s to repository %s", filename, r.path())
 	destinationPath := filepath.Join(r.path(), filename)
 	destination, err := os.Create(destinationPath)
