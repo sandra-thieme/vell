@@ -5,20 +5,19 @@ import (
 	"os"
 )
 
-var httpPort string
-var httpAddress string
-var ReposPath string
-
-var ListenAddress string
+var (
+	httpPort      = os.Getenv("VELL_HTTP_PORT")
+	httpAddress   = os.Getenv("VELL_HTTP_ADDRESS")
+	ReposPath     = os.Getenv("VELL_REPOS_PATH")
+	ListenAddress string
+)
 
 func init() {
-	if httpPort = os.Getenv("VELL_HTTP_PORT"); httpPort == "" {
+	if httpPort == "" {
 		httpPort = "8080"
 	}
 
-	httpAddress = os.Getenv("VELL_HTTP_ADDRESS")
-
-	if ReposPath = os.Getenv("VELL_REPOS_PATH"); ReposPath == "" {
+	if ReposPath == "" {
 		ReposPath = "/var/lib/vell/repositories"
 	}
 	if ReposPath[len(ReposPath)-1:] != "/" {

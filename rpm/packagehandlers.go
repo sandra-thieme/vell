@@ -1,9 +1,9 @@
 package rpm
 
 import (
-	"net/http"
-	"github.com/gorilla/mux"
 	"encoding/json"
+	"github.com/gorilla/mux"
+	"net/http"
 )
 
 // GET /repositories/{name}/packages

@@ -2,18 +2,23 @@ package rpm
 
 import (
 	"github.com/rkcpi/vell/config"
+	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"mime/multipart"
-	"io"
-	"io/ioutil"
 	"time"
 )
 
 type YumRepository struct {
 	Name string `json:"name"`
+}
+
+type Package struct {
+	Name      string `json:"name"`
+	Timestamp string `json:"lastUpdated"`
+	Size      int64  `json:"size"`
 }
 
 func (r *YumRepository) ensureExists() string {
@@ -37,7 +42,7 @@ func (r *YumRepository) initialize() error {
 	return cmd.Run()
 }
 
-func (r *YumRepository) add(filename string, f multipart.File) {
+func (r *YumRepository) add(filename string, f io.Reader) {
 	log.Printf("Adding %s to repository %s", filename, r.path())
 	destinationPath := filepath.Join(r.path(), filename)
 	destination, err := os.Create(destinationPath)
@@ -68,8 +73,8 @@ func (r *YumRepository) isValid() bool {
 }
 
 func (r *YumRepository) listPackages() []Package {
-	packages := make([]Package, 0, 0)
 	files, _ := ioutil.ReadDir(r.path())
+	packages := make([]Package, 0, len(files))
 	for _, file := range files {
 		if !file.IsDir() {
 			p := Package{file.Name(), file.ModTime().Format(time.RFC3339), file.Size()}
@@ -77,10 +82,4 @@ func (r *YumRepository) listPackages() []Package {
 		}
 	}
 	return packages
-}
-
-type Package struct {
-	Name string `json:"name"`
-	Timestamp string `json:"lastUpdated"`
-	Size int64 `json:"size"`
 }

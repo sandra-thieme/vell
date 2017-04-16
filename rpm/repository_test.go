@@ -1,21 +1,21 @@
 package rpm
 
 import (
-	"fmt"
 	"github.com/rkcpi/vell/config"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 	"testing"
-	"time"
 )
 
 var repo YumRepository
 var path string
 
 func setup() {
-	name := fmt.Sprintf("vell-repository-%v", time.Now().Unix())
+	name := "vell-repository"
 	repo = YumRepository{name}
-	config.ReposPath = "/tmp/"
-	path = "/tmp/" + name
+	config.ReposPath, _ = ioutil.TempDir("", "vell")
+	path = filepath.Join(config.ReposPath, name)
 }
 
 func TestPath(t *testing.T) {
@@ -50,4 +50,6 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func shutdown() {}
+func shutdown() {
+	defer os.RemoveAll(config.ReposPath)
+}
