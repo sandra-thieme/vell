@@ -39,7 +39,7 @@ func TestEnsureExists(t *testing.T) {
 		t.Errorf("%s is not a directory", path)
 	}
 	if perm := fileInfo.Mode().Perm(); perm != 0755 {
-		t.Errorf("%s has wrong permissions: %s (expected %s)", path, perm, 0755)
+		t.Errorf("%s has wrong permissions: %s (expected %s)", path, perm, os.FileMode(0755))
 	}
 }
 
