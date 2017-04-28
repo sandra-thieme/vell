@@ -1,17 +1,19 @@
-package rpm
+package api
 
 import (
 	"encoding/json"
 	"github.com/gorilla/mux"
+	"github.com/rkcpi/vell/repos"
+	"github.com/rkcpi/vell/config"
 	"net/http"
 )
 
 // GET /repositories/{name}/packages
 func ListPackages(w http.ResponseWriter, r *http.Request) {
-	repo := YumRepository{mux.Vars(r)["name"]}
-	packages := make([]Package, 0, 0)
-	if repo.isValid() {
-		packages = repo.listPackages()
+	repo := config.RepoStore.Get(mux.Vars(r)["name"])
+	var packages []repos.Package
+	if repo.IsValid() {
+		packages = repo.ListPackages()
 	}
 	if err := json.NewEncoder(w).Encode(packages); err != nil {
 		fail(w, err)
@@ -22,7 +24,7 @@ func ListPackages(w http.ResponseWriter, r *http.Request) {
 
 // POST /repositories/{name}/packages
 func AddRPM(w http.ResponseWriter, r *http.Request) {
-	repo := YumRepository{mux.Vars(r)["name"]}
+	repo := config.RepoStore.Get(mux.Vars(r)["name"])
 	err := r.ParseMultipartForm(10 * 1024 * 1024)
 	if err != nil {
 		fail(w, err)
@@ -35,9 +37,9 @@ func AddRPM(w http.ResponseWriter, r *http.Request) {
 			}
 			defer src.Close()
 
-			repo.add(file.Filename, src)
+			repo.Add(file.Filename, src)
 		}
 	}
-	repo.update()
+	repo.Update()
 	w.WriteHeader(http.StatusCreated)
 }

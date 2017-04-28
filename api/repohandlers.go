@@ -1,18 +1,18 @@
-package rpm
+package api
 
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/rkcpi/vell/repos"
 	"github.com/rkcpi/vell/config"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 )
 
 // POST /repositories
 func CreateRepo(w http.ResponseWriter, r *http.Request) {
-	var repo YumRepository
+	var repo repos.Repository
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {
 		panic(err)
@@ -20,7 +20,7 @@ func CreateRepo(w http.ResponseWriter, r *http.Request) {
 	if err := json.Unmarshal(body, &repo); err != nil {
 		fail(w, err)
 	}
-	if err := repo.initialize(); err != nil {
+	if err := config.RepoStore.Initialize(repo.Name); err != nil {
 		fail(w, err)
 	}
 
@@ -32,18 +32,9 @@ func CreateRepo(w http.ResponseWriter, r *http.Request) {
 
 // GET /repositories
 func ListRepos(w http.ResponseWriter, r *http.Request) {
-	files, err := ioutil.ReadDir(config.ReposPath)
-	if err != nil {
-		log.Printf("Error: %s", err)
-	}
-	repos := make([]YumRepository, 0, 0)
-	for _, file := range files {
-		repo := YumRepository{file.Name()}
-		if repo.isValid() {
-			repos = append(repos, repo)
-		}
-	}
-	if err := json.NewEncoder(w).Encode(repos); err != nil {
+	reps := config.RepoStore.ListRepositories()
+
+	if err := json.NewEncoder(w).Encode(reps); err != nil {
 		fail(w, err)
 	}
 	w.Header().Set("Content-Type", "application/json;charset=UTF-8")

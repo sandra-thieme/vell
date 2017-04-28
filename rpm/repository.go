@@ -1,7 +1,7 @@
 package rpm
 
 import (
-	"github.com/rkcpi/vell/config"
+	"github.com/rkcpi/vell/repos"
 	"io"
 	"io/ioutil"
 	"log"
@@ -11,38 +11,20 @@ import (
 	"time"
 )
 
-type YumRepository struct {
-	Name string `json:"name"`
+type yumRepository struct {
+	store *yumRepoStore
+	name  string
 }
 
-type Package struct {
-	Name      string `json:"name"`
-	Timestamp string `json:"lastUpdated"`
-	Size      int64  `json:"size"`
+func NewRepository(store *yumRepoStore, name string) repos.AnyRepository {
+	return &yumRepository{store, name}
 }
 
-func (r *YumRepository) ensureExists() string {
-	path := r.path()
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		log.Printf("Creating repository directory %s", path)
-		os.MkdirAll(path, 0755)
-	}
-	return path
+func (r *yumRepository) path() string {
+	return filepath.Join(r.store.base, r.name)
 }
 
-func (r *YumRepository) path() string {
-	return filepath.Join(config.ReposPath, r.Name)
-}
-
-func (r *YumRepository) initialize() error {
-	log.Printf("Initializing repository %s", r.Name)
-	path := r.ensureExists()
-	log.Printf("Executing `createrepo --database %s`", path)
-	cmd := exec.Command("createrepo", "--database", path)
-	return cmd.Run()
-}
-
-func (r *YumRepository) add(filename string, f io.Reader) {
+func (r *yumRepository) Add(filename string, f io.Reader) {
 	log.Printf("Adding %s to repository %s", filename, r.path())
 	destinationPath := filepath.Join(r.path(), filename)
 	destination, err := os.Create(destinationPath)
@@ -56,28 +38,32 @@ func (r *YumRepository) add(filename string, f io.Reader) {
 	}
 }
 
-func (r *YumRepository) update() error {
+func (r *yumRepository) Update() error {
 	path := r.path()
 	log.Printf("Executing `createrepo --update %s`", path)
 	cmd := exec.Command("createrepo", "--update", path)
 	return cmd.Run()
 }
 
-func (r *YumRepository) repomdPath() string {
+func (r *yumRepository) repomdPath() string {
 	return filepath.Join(r.path(), "repodata", "repomd.xml")
 }
 
-func (r *YumRepository) isValid() bool {
+func (r *yumRepository) IsValid() bool {
 	_, err := os.Stat(r.repomdPath())
 	return err != nil
 }
 
-func (r *YumRepository) listPackages() []Package {
+func (r *yumRepository) ListPackages() []repos.Package {
 	files, _ := ioutil.ReadDir(r.path())
-	packages := make([]Package, 0, len(files))
+	packages := make([]repos.Package, 0, len(files))
 	for _, file := range files {
 		if !file.IsDir() {
-			p := Package{file.Name(), file.ModTime().Format(time.RFC3339), file.Size()}
+			p := repos.Package{
+				Name:      file.Name(),
+				Timestamp: file.ModTime().Format(time.RFC3339),
+				Size:      file.Size(),
+			}
 			packages = append(packages, p)
 		}
 	}
