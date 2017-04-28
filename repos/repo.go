@@ -20,8 +20,8 @@ type RepositoryStore interface {
 }
 
 type AnyRepository interface {
-	Add(filename string, f io.Reader)
+	Add(filename string, f io.Reader) error
 	Update() error
-	ListPackages() []Package
+	ListPackages() ([]Package, error)
 	IsValid() bool
 }
