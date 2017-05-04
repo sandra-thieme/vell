@@ -19,12 +19,12 @@ type mockStore struct{}
 type mockRepo struct{}
 
 func (s *mockStore) ListRepositories() []repos.Repository {
-	return []repos.Repository{repos.Repository{"foo"}}
+	return []repos.Repository{{"foo"}}
 }
 func (s *mockStore) Initialize(name string) error        { return nil }
 func (s *mockStore) Get(name string) repos.AnyRepository { return &mockRepo{} }
 
-func (s *mockRepo) Add(filename string, f io.Reader) error { return nil }
+func (s *mockRepo) Add(filename string, f io.Reader) error { return errors.New("terribly sorry") }
 func (s *mockRepo) Update() error                          { return errors.New("terribly sorry") }
 func (s *mockRepo) ListPackages() ([]repos.Package, error) { return []repos.Package{}, nil }
 func (s *mockRepo) IsValid() bool                          { return true }
@@ -59,7 +59,7 @@ func TestBasicRepositoryListing(t *testing.T) {
 	}
 }
 
-func FailingTestBasicErrorHandling(t *testing.T) {
+func TestBasicErrorHandling(t *testing.T) {
 	r := NewRouter()
 
 	reqBody := bytes.NewBuffer([]byte("asdf"))
@@ -76,7 +76,12 @@ func FailingTestBasicErrorHandling(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if string(body) != "foo" {
+	var apiError struct{Message string}
+	if err = json.Unmarshal(body, &apiError); err != nil {
+		t.Fatal(err)
+	}
+
+	if apiError.Message != "Error adding package to repository" {
 		t.Error(body)
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/rkcpi/vell/config"
 	"net/http"
+	"errors"
 )
 
 // GET /repositories/{name}/packages
@@ -31,6 +32,9 @@ func AddRPM(w http.ResponseWriter, r *http.Request) *apiError {
 	if err != nil {
 		return &apiError{err, "I/O error", http.StatusBadRequest}
 	}
+	if len(r.MultipartForm.File) > 1 {
+		return &apiError{errors.New("yolo"), "Invalid number of files", http.StatusBadRequest}
+	}
 	for _, files := range r.MultipartForm.File {
 		for _, file := range files {
 			src, err := file.Open()
@@ -39,10 +43,16 @@ func AddRPM(w http.ResponseWriter, r *http.Request) *apiError {
 			}
 			defer src.Close()
 
-			repo.Add(file.Filename, src)
+			err = repo.Add(file.Filename, src)
+			if err != nil {
+				return &apiError{err, "Error adding package to repository", http.StatusInternalServerError}
+			}
 		}
 	}
-	repo.Update()
+	err = repo.Update()
+	if err != nil {
+		return &apiError{err, "Error updating the repository", http.StatusInternalServerError}
+	}
 	w.WriteHeader(http.StatusCreated)
 	return nil
 }
