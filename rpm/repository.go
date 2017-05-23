@@ -72,7 +72,7 @@ func (r *yumRepository) repomdPath() string {
 
 func (r *yumRepository) IsValid() bool {
 	_, err := os.Stat(r.repomdPath())
-	return err != nil
+	return err == nil
 }
 
 func (r *yumRepository) ListPackages() ([]repos.Package, error) {

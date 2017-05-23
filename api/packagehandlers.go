@@ -28,6 +28,9 @@ func ListPackages(w http.ResponseWriter, r *http.Request) *apiError {
 // POST /repositories/{name}/packages
 func AddRPM(w http.ResponseWriter, r *http.Request) *apiError {
 	repo := config.RepoStore.Get(mux.Vars(r)["name"])
+	if !repo.IsValid() {
+		return &apiError{errors.New("Repository does not exist"), "Invalid repository", http.StatusBadRequest}
+	}
 	err := r.ParseMultipartForm(10 * 1024 * 1024)
 	if err != nil {
 		return &apiError{err, "I/O error", http.StatusBadRequest}
