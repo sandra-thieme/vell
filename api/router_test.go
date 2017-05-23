@@ -19,7 +19,7 @@ type mockStore struct{}
 type mockRepo struct{}
 
 func (s *mockStore) ListRepositories() []repos.Repository {
-	return []repos.Repository{{"foo"}}
+	return []repos.Repository{{Name: "foo"}}
 }
 func (s *mockStore) Initialize(name string) error        { return nil }
 func (s *mockStore) Get(name string) repos.AnyRepository { return &mockRepo{} }
