@@ -1,0 +1,25 @@
+#!/bin/sh
+
+user=vell
+group=vell
+
+if ! getent group "$group" >/dev/null; then
+  groupadd -r "$group"
+fi
+
+if ! getent passwd "$user">/dev/null; then
+  useradd -r -g "$group" -d /var/lib/vell -s /sbin/nologin -c "Vell" "$user"
+fi
+
+mkdir -p /var/lib/vell/repositories
+chown -R $user:$group /var/lib/vell
+
+if [ -e /usr/bin/systemctl ]; then
+  # reload systemctl daemon so that changes in the service file take effect
+  systemctl daemon-reload
+  # restart daemon if it is running
+  ACTIVE=$(systemctl is-active vell)
+  if [ "$ACTIVE" = "active" ]; then
+    systemctl restart vell
+  fi
+fi

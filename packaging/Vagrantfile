@@ -1,0 +1,19 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+require 'pathname'
+
+ROOT = Pathname.new(__FILE__).expand_path.dirname
+
+Vagrant.configure(2) do |config|
+
+  config.vm.define 'centos7' do |machine|
+    machine.vm.provider 'docker' do |docker|
+      docker.build_dir = ROOT.join('.')
+      docker.build_args = ['--rm=true', '--tag=vell/centos:7']
+      docker.create_args = ['--rm=true']
+    end
+  end
+
+end
+
