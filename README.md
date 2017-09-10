@@ -7,16 +7,16 @@ Every operation is done via Vell's HTTP API.
 
 ## Installation
 
-Vell is still under development and no stable version has been released
-as of yet. Once Vell hits 1.0 packages will be provided for download.
+Vell is available pre-packaged from a bintray rpm repository:
 
-The only external dependency that Vell has is `createrepo`. Make sure
-that the `createrepo` package is installed:
-
-```bash
-$ yum install createrepo
 ```
-
+[bintraybintray-rkcpi-vell]
+name=bintray-rkcpi-vell
+baseurl=https://dl.bintray.com/rkcpi/vell
+gpgcheck=0
+repo_gpgcheck=0
+enabled=1
+```
 
 ## Configuration
 
