@@ -72,11 +72,11 @@ Response will have status code 201 CREATED.
 
 Adds a new package to the repository with name `name`.
 
-Suppose you have a package called `myapp-1.5.3.x86_64.rpm`. Example to
+Suppose you have a package called `myapp-1.5.3-1.x86_64.rpm`. Example to
 add this to your `foo` repository:
 
 ```bash
-$ curl -X POST -F file=@path/to/myapp-1.5.3.x86_64.rpm http://localhost:8080/repositories/foo/packages
+$ curl -X POST -F file=@path/to/myapp-1.5.3-1.x86_64.rpm http://localhost:8080/repositories/foo/packages
 ```
 
 Response will have status code 201 CREATED.
@@ -96,10 +96,36 @@ Response with status code 200 OK:
 ```json
 [
   {
-    "name":"myapp-1.5.3.x86_64.rpm",
+    "name":"myapp-1.5.3-1.x86_64.rpm",
     "lastUpdated":"2017-03-07T13:02:58+01:00",
     "size":415661
   },
   ...
 ]
 ```
+
+### GET /repositories/{name}/packages/{packagename}/version/{version}
+
+Get metadata for the package `packagename` with version `version `in
+repository `name`.
+
+Example request:
+
+```bash
+$ curl http://localhost:8080/repositories/baz/packages/myapp/version/1.5.3-1
+```
+
+Response with status code 200 OK:
+
+```json
+{
+  "name":"myapp",
+  "lastUpdated":"",
+  "size":0,
+  "version":"1.5.3-1",
+  "arch":"x86_64"
+}
+```
+
+If a package with the specified parameters does not exist, return code
+will be 404.

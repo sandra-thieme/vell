@@ -25,6 +25,25 @@ func ListPackages(w http.ResponseWriter, r *http.Request) *apiError {
 	return nil
 }
 
+// GET /repositories/{name}/packages/{packagename}/version/{version}
+func GetPackageWithNameAndVersion(w http.ResponseWriter, r *http.Request) *apiError {
+	repo := config.RepoStore.Get(mux.Vars(r)["name"])
+	packagename := mux.Vars(r)["packagename"]
+	version := mux.Vars(r)["version"]
+
+	pkg, err := repo.PackageWithNameAndVersion(packagename, version)
+	if err != nil {
+		return &apiError{err, "Package not found", http.StatusNotFound}
+	}
+
+	w.WriteHeader(http.StatusOK)
+
+	if err := json.NewEncoder(w).Encode(pkg); err != nil {
+		panic(err)
+	}
+	return nil
+}
+
 // POST /repositories/{name}/packages
 func AddRPM(w http.ResponseWriter, r *http.Request) *apiError {
 	repo := config.RepoStore.Get(mux.Vars(r)["name"])

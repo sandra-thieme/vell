@@ -25,9 +25,10 @@ func (s *mockStore) Initialize(name string) error        { return nil }
 func (s *mockStore) Get(name string) repos.AnyRepository { return &mockRepo{} }
 
 func (s *mockRepo) Add(filename string, f io.Reader) error { return errors.New("terribly sorry") }
-func (s *mockRepo) Update() error                          { return errors.New("terribly sorry") }
+func (s *mockRepo) Update() error { return errors.New("terribly sorry") }
 func (s *mockRepo) ListPackages() ([]repos.Package, error) { return []repos.Package{}, nil }
-func (s *mockRepo) IsValid() bool                          { return true }
+func (s *mockRepo) PackageWithNameAndVersion(packagename string, version string) (repos.Package, error) { return repos.Package{}, nil }
+func (s *mockRepo) IsValid() bool { return true }
 
 func setup() {
 	config.RepoStore = &mockStore{}

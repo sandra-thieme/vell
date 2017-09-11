@@ -32,4 +32,10 @@ var routes = []Route{
 		"/repositories/{name}/packages",
 		ListPackages,
 	},
+	{
+		"getPackageWithVersion",
+		"GET",
+		"/repositories/{name}/packages/{packagename}/version/{version}",
+		GetPackageWithNameAndVersion,
+	},
 }

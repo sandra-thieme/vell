@@ -9,6 +9,9 @@ import (
 	"os/exec"
 	"path/filepath"
 	"time"
+	"encoding/xml"
+	"compress/gzip"
+	"errors"
 )
 
 type yumRepository struct {
@@ -92,5 +95,104 @@ func (r *yumRepository) ListPackages() ([]repos.Package, error) {
 			packages = append(packages, p)
 		}
 	}
+
 	return packages, nil
+}
+
+func (r *yumRepository) PackageWithNameAndVersion(name string, version string) (repos.Package, error) {
+	// get filelists name from repomd.xml
+	repomdXml, err := os.Open(r.repomdPath())
+	if err != nil {
+		return repos.Package{}, err
+	}
+	defer repomdXml.Close()
+
+	repomdData, err := ioutil.ReadAll(repomdXml)
+	if err != nil {
+		return repos.Package{}, err
+	}
+	var repomd RepoMd
+	xml.Unmarshal(repomdData, &repomd)
+	filelist := filepath.Join(r.path(), filelist(repomd))
+
+	// read filelists.xml.gz
+	f, err := os.Open(filelist)
+	if err != nil {
+		return repos.Package{}, err
+	}
+	defer f.Close()
+	gz, err := gzip.NewReader(f)
+	if err != nil {
+		return repos.Package{}, err
+	}
+	defer gz.Close()
+
+	filelistData, err := ioutil.ReadAll(gz)
+	if err != nil {
+		return repos.Package{}, err
+	}
+	var filelistsContent Filelists
+	xml.Unmarshal(filelistData, &filelistsContent)
+
+	return findPackageWithVersion(filelistsContent, name, version)
+
+}
+
+func findPackageWithVersion(filelist Filelists, name string, version string) (repos.Package, error) {
+	for _, pkg := range filelist.Packages {
+		v := pkg.Version.Version + "-" + pkg.Version.Rel
+		if pkg.Name == name && v == version {
+			return repos.Package{
+				Name: pkg.Name,
+				Version: v,
+				Arch: pkg.Arch,
+			}, nil
+		}
+	}
+	return repos.Package{}, errors.New("No matching package with given version")
+}
+
+func filelist(repomd RepoMd) (filelist string) {
+	for _, data := range repomd.Data {
+		if data.Type == "filelists" {
+			return data.Location.Href
+		}
+	}
+	return ""
+}
+
+// structs for repomd.xml
+type RepoMd struct {
+	XMLName xml.Name `xml:"repomd"`
+	Data    []Data   `xml:"data"`
+}
+
+type Data struct {
+	XMLName  xml.Name `xml:"data"`
+	Type     string   `xml:"type,attr"`
+	Location Location `xml:"location"`
+}
+
+type Location struct {
+	XMLName xml.Name `xml:"location"`
+	Href     string  `xml:"href,attr"`
+}
+
+// structs for filelists.xml
+type Filelists struct {
+	XMLName  xml.Name          `xml:"filelists"`
+	Packages []FilelistPackage `xml:"package"`
+}
+
+type FilelistPackage struct {
+	XMLName xml.Name `xml:"package"`
+	Name    string   `xml:"name,attr"`
+	Arch    string   `xml:"arch,attr"`
+	Version Version  `xml:"version"`
+}
+
+type Version struct {
+	XMLName xml.Name `xml:"version"`
+	Rel     string   `xml:"rel,attr"`
+	Version string   `xml:"ver,attr"`
 }
