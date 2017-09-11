@@ -2,10 +2,11 @@ class Vell < FPM::Cookery::Recipe
   GOPACKAGE = 'vell'
 
   name         'vell'
-  version      '1.0.0'
+  version      '1.1.0'
   source       'https://github.com/rkcpi/vell.git', :with => :git, :tag => @version
   revision     '1'
   description  'Lightweight repository management tool for RPM repositories'
+  homepage     'https://rkcpi.github.io/vell/'
 
   build_depends %w(golang git)
   depends       'createrepo'
