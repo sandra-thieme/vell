@@ -2,9 +2,10 @@ package config
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/rkcpi/vell/repos"
 	"github.com/rkcpi/vell/rpm"
-	"os"
 )
 
 var (

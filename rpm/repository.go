@@ -1,7 +1,9 @@
 package rpm
 
 import (
-	"github.com/rkcpi/vell/repos"
+	"compress/gzip"
+	"encoding/xml"
+	"errors"
 	"io"
 	"io/ioutil"
 	"log"
@@ -9,9 +11,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"time"
-	"encoding/xml"
-	"compress/gzip"
-	"errors"
+
+	"github.com/rkcpi/vell/repos"
 )
 
 type yumRepository struct {
@@ -143,9 +144,9 @@ func findPackageWithVersion(filelist Filelists, name string, version string) (re
 		v := pkg.Version.Version + "-" + pkg.Version.Rel
 		if pkg.Name == name && v == version {
 			return repos.Package{
-				Name: pkg.Name,
+				Name:    pkg.Name,
 				Version: v,
-				Arch: pkg.Arch,
+				Arch:    pkg.Arch,
 			}, nil
 		}
 	}
@@ -175,7 +176,7 @@ type Data struct {
 
 type Location struct {
 	XMLName xml.Name `xml:"location"`
-	Href     string  `xml:"href,attr"`
+	Href    string   `xml:"href,attr"`
 }
 
 // structs for filelists.xml

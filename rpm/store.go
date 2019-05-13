@@ -1,12 +1,13 @@
 package rpm
 
 import (
-	"github.com/rkcpi/vell/repos"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
+
+	"github.com/rkcpi/vell/repos"
 )
 
 type yumRepoStore struct {
