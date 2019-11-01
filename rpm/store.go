@@ -24,7 +24,12 @@ func (store *yumRepoStore) Get(name string) repos.AnyRepository {
 
 func (store *yumRepoStore) Initialize(name string) error {
 	log.Printf("Initializing repository %s", name)
-	path := store.ensureExists(name)
+
+	path, err := store.ensureExists(name)
+	if err != nil {
+		return err
+	}
+
 	log.Printf("Executing `createrepo --database %s`", path)
 	cmd := exec.Command("createrepo", "--database", path)
 	return cmd.Run()
@@ -44,11 +49,13 @@ func (store *yumRepoStore) ListRepositories() []repos.Repository {
 	return reps
 }
 
-func (store *yumRepoStore) ensureExists(name string) string {
+func (store *yumRepoStore) ensureExists(name string) (string, error) {
 	path := filepath.Join(store.base, name)
-	if _, err := os.Stat(path); os.IsNotExist(err) {
+
+	_, err := os.Stat(path)
+	if os.IsNotExist(err) {
 		log.Printf("Creating repository directory %s", path)
-		os.MkdirAll(path, 0755)
+		err = os.MkdirAll(path, 0755)
 	}
-	return path
+	return path, err
 }

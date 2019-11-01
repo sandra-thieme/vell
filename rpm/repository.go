@@ -121,7 +121,10 @@ func (r *yumRepository) PackageWithNameAndVersion(name string, version string) (
 		return repos.Package{}, err
 	}
 	var repomd RepoMd
-	xml.Unmarshal(repomdData, &repomd)
+
+	if err = xml.Unmarshal(repomdData, &repomd); err != nil {
+		return repos.Package{}, err
+	}
 
 	filelist := filepath.Join(r.path(), filelist(repomd))
 
@@ -144,7 +147,9 @@ func (r *yumRepository) PackageWithNameAndVersion(name string, version string) (
 
 	var filelistsContent Filelists
 
-	xml.Unmarshal(filelistData, &filelistsContent)
+	if err = xml.Unmarshal(filelistData, &filelistsContent); err != nil {
+		return repos.Package{}, err
+	}
 
 	return findPackageWithVersion(filelistsContent, name, version)
 }

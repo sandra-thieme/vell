@@ -26,7 +26,9 @@ func TestPath(t *testing.T) {
 }
 
 func TestEnsureExists(t *testing.T) {
-	repo.store.ensureExists(repo.name)
+	if _, err := repo.store.ensureExists(repo.name); err != nil {
+		t.Error(err)
+	}
 	file, err := os.Open(path)
 	if err != nil {
 		t.Errorf("%s", err)
