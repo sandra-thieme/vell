@@ -51,8 +51,8 @@ func AddRPM(w http.ResponseWriter, r *http.Request) *apiError {
 	if !repo.IsValid() {
 		return &apiError{errors.New("Repository does not exist"), "Invalid repository", http.StatusBadRequest}
 	}
-	err := r.ParseMultipartForm(10 * 1024 * 1024)
-	if err != nil {
+
+	if err := r.ParseMultipartForm(10 * 1024 * 1024); err != nil {
 		return &apiError{err, "I/O error", http.StatusBadRequest}
 	}
 	if len(r.MultipartForm.File) > 1 {
@@ -72,8 +72,8 @@ func AddRPM(w http.ResponseWriter, r *http.Request) *apiError {
 			}
 		}
 	}
-	err = repo.Update()
-	if err != nil {
+
+	if err := repo.Update(); err != nil {
 		return &apiError{err, "Error updating the repository", http.StatusInternalServerError}
 	}
 	w.WriteHeader(http.StatusCreated)
