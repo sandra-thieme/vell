@@ -49,7 +49,7 @@ func GetPackageWithNameAndVersion(w http.ResponseWriter, r *http.Request) *apiEr
 func AddRPM(w http.ResponseWriter, r *http.Request) *apiError {
 	repo := config.RepoStore.Get(mux.Vars(r)["name"])
 	if !repo.IsValid() {
-		return &apiError{errors.New("Repository does not exist"), "Invalid repository", http.StatusBadRequest}
+		return &apiError{errors.New("repository does not exist"), "Invalid repository", http.StatusBadRequest}
 	}
 
 	if err := r.ParseMultipartForm(10 * 1024 * 1024); err != nil {

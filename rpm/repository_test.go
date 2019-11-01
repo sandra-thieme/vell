@@ -20,7 +20,6 @@ func setup() {
 }
 
 func TestPath(t *testing.T) {
-
 	if p := repo.path(); p != path {
 		t.Errorf("Expected %s, but got %s", path, p)
 	}
