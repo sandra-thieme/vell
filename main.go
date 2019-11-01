@@ -9,7 +9,6 @@ import (
 )
 
 func main() {
-
 	EnsureCreateRepo()
 
 	router := api.NewRouter()

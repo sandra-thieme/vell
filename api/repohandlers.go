@@ -3,11 +3,12 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/rkcpi/vell/config"
-	"github.com/rkcpi/vell/repos"
 	"io"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/rkcpi/vell/config"
+	"github.com/rkcpi/vell/repos"
 )
 
 // POST /repositories

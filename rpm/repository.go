@@ -1,7 +1,9 @@
 package rpm
 
 import (
-	"github.com/rkcpi/vell/repos"
+	"compress/gzip"
+	"encoding/xml"
+	"errors"
 	"io"
 	"io/ioutil"
 	"log"
@@ -9,9 +11,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"time"
-	"encoding/xml"
-	"compress/gzip"
-	"errors"
+
+	"github.com/rkcpi/vell/repos"
 )
 
 type yumRepository struct {
@@ -25,11 +26,13 @@ func NewRepository(store *yumRepoStore, name string) repos.AnyRepository {
 
 func (r *yumRepository) ensureExists() (string, error) {
 	path := r.path()
+
 	_, err := os.Stat(path)
 	if os.IsNotExist(err) {
 		log.Printf("Creating repository directory %s", path)
 		err = os.MkdirAll(path, 0755)
 	}
+
 	return path, err
 }
 
@@ -39,6 +42,7 @@ func (r *yumRepository) path() string {
 
 func (r *yumRepository) Initialize() error {
 	log.Printf("Initializing repository %s", r.name)
+
 	path, err := r.ensureExists()
 	if err != nil {
 		return err
@@ -46,17 +50,20 @@ func (r *yumRepository) Initialize() error {
 
 	log.Printf("Executing `createrepo --database %s`", path)
 	cmd := exec.Command("createrepo", "--database", path)
+
 	return cmd.Run()
 }
 
 func (r *yumRepository) Add(filename string, f io.Reader) error {
 	log.Printf("Adding %s to repository %s", filename, r.path())
 	destinationPath := filepath.Join(r.path(), filename)
+
 	destination, err := os.Create(destinationPath)
 	if err != nil {
 		return err
 	}
 	defer destination.Close()
+
 	_, err = io.Copy(destination, f)
 
 	return err
@@ -66,6 +73,7 @@ func (r *yumRepository) Update() error {
 	path := r.path()
 	log.Printf("Executing `createrepo --update %s`", path)
 	cmd := exec.Command("createrepo", "--update", path)
+
 	return cmd.Run()
 }
 
@@ -85,6 +93,7 @@ func (r *yumRepository) ListPackages() ([]repos.Package, error) {
 	}
 
 	packages := make([]repos.Package, 0, len(files))
+
 	for _, file := range files {
 		if !file.IsDir() {
 			p := repos.Package{
@@ -101,18 +110,22 @@ func (r *yumRepository) ListPackages() ([]repos.Package, error) {
 
 func (r *yumRepository) PackageWithNameAndVersion(name string, version string) (repos.Package, error) {
 	// get filelists name from repomd.xml
-	repomdXml, err := os.Open(r.repomdPath())
+	repomdXML, err := os.Open(r.repomdPath())
 	if err != nil {
 		return repos.Package{}, err
 	}
-	defer repomdXml.Close()
+	defer repomdXML.Close()
 
-	repomdData, err := ioutil.ReadAll(repomdXml)
+	repomdData, err := ioutil.ReadAll(repomdXML)
 	if err != nil {
 		return repos.Package{}, err
 	}
 	var repomd RepoMd
-	xml.Unmarshal(repomdData, &repomd)
+
+	if err = xml.Unmarshal(repomdData, &repomd); err != nil {
+		return repos.Package{}, err
+	}
+
 	filelist := filepath.Join(r.path(), filelist(repomd))
 
 	// read filelists.xml.gz
@@ -131,11 +144,14 @@ func (r *yumRepository) PackageWithNameAndVersion(name string, version string) (
 	if err != nil {
 		return repos.Package{}, err
 	}
+
 	var filelistsContent Filelists
-	xml.Unmarshal(filelistData, &filelistsContent)
+
+	if err = xml.Unmarshal(filelistData, &filelistsContent); err != nil {
+		return repos.Package{}, err
+	}
 
 	return findPackageWithVersion(filelistsContent, name, version)
-
 }
 
 func findPackageWithVersion(filelist Filelists, name string, version string) (repos.Package, error) {
@@ -143,13 +159,13 @@ func findPackageWithVersion(filelist Filelists, name string, version string) (re
 		v := pkg.Version.Version + "-" + pkg.Version.Rel
 		if pkg.Name == name && v == version {
 			return repos.Package{
-				Name: pkg.Name,
+				Name:    pkg.Name,
 				Version: v,
-				Arch: pkg.Arch,
+				Arch:    pkg.Arch,
 			}, nil
 		}
 	}
-	return repos.Package{}, errors.New("No matching package with given version")
+	return repos.Package{}, errors.New("no matching package with given version")
 }
 
 func filelist(repomd RepoMd) (filelist string) {
@@ -175,7 +191,7 @@ type Data struct {
 
 type Location struct {
 	XMLName xml.Name `xml:"location"`
-	Href     string  `xml:"href,attr"`
+	Href    string   `xml:"href,attr"`
 }
 
 // structs for filelists.xml

@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"github.com/rkcpi/vell/config"
-	"github.com/rkcpi/vell/repos"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
@@ -13,6 +11,9 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
+
+	"github.com/rkcpi/vell/config"
+	"github.com/rkcpi/vell/repos"
 )
 
 type mockStore struct{}
@@ -25,9 +26,11 @@ func (s *mockStore) Initialize(name string) error        { return nil }
 func (s *mockStore) Get(name string) repos.AnyRepository { return &mockRepo{} }
 
 func (s *mockRepo) Add(filename string, f io.Reader) error { return errors.New("terribly sorry") }
-func (s *mockRepo) Update() error { return errors.New("terribly sorry") }
+func (s *mockRepo) Update() error                          { return errors.New("terribly sorry") }
 func (s *mockRepo) ListPackages() ([]repos.Package, error) { return []repos.Package{}, nil }
-func (s *mockRepo) PackageWithNameAndVersion(packagename string, version string) (repos.Package, error) { return repos.Package{}, nil }
+func (s *mockRepo) PackageWithNameAndVersion(packagename string, version string) (repos.Package, error) {
+	return repos.Package{}, nil
+}
 func (s *mockRepo) IsValid() bool { return true }
 
 func setup() {
@@ -77,7 +80,7 @@ func TestBasicErrorHandling(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	var apiError struct{Message string}
+	var apiError struct{ Message string }
 	if err = json.Unmarshal(body, &apiError); err != nil {
 		t.Fatal(err)
 	}

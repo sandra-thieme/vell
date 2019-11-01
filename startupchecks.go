@@ -1,10 +1,11 @@
 package main
 
 import (
-	"golang.org/x/sys/unix"
 	"log"
 	"os/exec"
+
 	"github.com/rkcpi/vell/config"
+	"golang.org/x/sys/unix"
 )
 
 func EnsureCreateRepo() {

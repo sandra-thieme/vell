@@ -20,14 +20,15 @@ func setup() {
 }
 
 func TestPath(t *testing.T) {
-
 	if p := repo.path(); p != path {
 		t.Errorf("Expected %s, but got %s", path, p)
 	}
 }
 
 func TestEnsureExists(t *testing.T) {
-	repo.store.ensureExists(repo.name)
+	if _, err := repo.store.ensureExists(repo.name); err != nil {
+		t.Error(err)
+	}
 	file, err := os.Open(path)
 	if err != nil {
 		t.Errorf("%s", err)

@@ -21,7 +21,9 @@ func (handler apiHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if e.code >= 500 {
 			log.Printf("%s: %s", e.Message, e.error)
 		}
+
 		w.WriteHeader(e.code)
+
 		if err := json.NewEncoder(w).Encode(e); err != nil {
 			panic(err)
 		}
